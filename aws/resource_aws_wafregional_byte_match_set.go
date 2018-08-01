@@ -32,7 +32,7 @@ func resourceAwsWafRegionalByteMatchSet() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"field_to_match": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -69,7 +69,7 @@ func resourceAwsWafRegionalByteMatchSet() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"field_to_match": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -164,23 +164,11 @@ func flattenWafByteMatchTuplesWR(in []*waf.ByteMatchTuple) []interface{} {
 
 	for i, tuple := range in {
 		field_to_match := tuple.FieldToMatch
-		m := map[string]interface{}{
-			"type": *field_to_match.Type,
-		}
-
-		if field_to_match.Data == nil {
-			m["data"] = ""
-		} else {
-			m["data"] = *field_to_match.Data
-		}
-
-		var ms []map[string]interface{}
-		ms = append(ms, m)
 
 		tuple := map[string]interface{}{
-			"field_to_match":        ms,
+			"field_to_match":        flattenFieldToMatch(field_to_match),
 			"positional_constraint": *tuple.PositionalConstraint,
-			"target_string":         tuple.TargetString,
+			"target_string":         string(tuple.TargetString[:]),
 			"text_transformation":   *tuple.TextTransformation,
 		}
 		tuples[i] = tuple
@@ -280,10 +268,11 @@ func diffByteMatchSetTuple(oldT, newT []interface{}) []*waf.ByteMatchSetUpdate {
 			continue
 		}
 
+		ftm := tuple["field_to_match"].([]interface{})
 		updates = append(updates, &waf.ByteMatchSetUpdate{
 			Action: aws.String(waf.ChangeActionDelete),
 			ByteMatchTuple: &waf.ByteMatchTuple{
-				FieldToMatch:         expandFieldToMatch(tuple["field_to_match"].(*schema.Set).List()[0].(map[string]interface{})),
+				FieldToMatch:         expandFieldToMatch(ftm[0].(map[string]interface{})),
 				PositionalConstraint: aws.String(tuple["positional_constraint"].(string)),
 				TargetString:         []byte(tuple["target_string"].(string)),
 				TextTransformation:   aws.String(tuple["text_transformation"].(string)),
@@ -294,10 +283,11 @@ func diffByteMatchSetTuple(oldT, newT []interface{}) []*waf.ByteMatchSetUpdate {
 	for _, nt := range newT {
 		tuple := nt.(map[string]interface{})
 
+		ftm := tuple["field_to_match"].([]interface{})
 		updates = append(updates, &waf.ByteMatchSetUpdate{
 			Action: aws.String(waf.ChangeActionInsert),
 			ByteMatchTuple: &waf.ByteMatchTuple{
-				FieldToMatch:         expandFieldToMatch(tuple["field_to_match"].(*schema.Set).List()[0].(map[string]interface{})),
+				FieldToMatch:         expandFieldToMatch(ftm[0].(map[string]interface{})),
 				PositionalConstraint: aws.String(tuple["positional_constraint"].(string)),
 				TargetString:         []byte(tuple["target_string"].(string)),
 				TextTransformation:   aws.String(tuple["text_transformation"].(string)),
