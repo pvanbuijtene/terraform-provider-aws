@@ -3,7 +3,9 @@ package aws
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
+	"net"
 	"net/url"
 	"strings"
 
@@ -101,4 +103,27 @@ func suppressAutoscalingGroupAvailabilityZoneDiffs(k, old, new string, d *schema
 
 func suppressRoute53ZoneNameWithTrailingDot(k, old, new string, d *schema.ResourceData) bool {
 	return strings.TrimSuffix(old, ".") == strings.TrimSuffix(new, ".")
+}
+
+func suppressEquivalentIPDiffs(k, old, new string, d *schema.ResourceData) bool {
+
+	fmt.Printf("suppressEquivalentIPDiffs: %s == %s \n", old, new)
+
+	//return old == new
+
+	oldIPAddr, oldIPNet, oldErr := net.ParseCIDR(old)
+	if oldErr != nil {
+		fmt.Printf("suppressEquivalentIPDiffs: OLD error\n")
+		return false
+	}
+
+	newIPAddr, newIPNet, newErr := net.ParseCIDR(new)
+	if newErr != nil {
+		fmt.Printf("suppressEquivalentIPDiffs: NEW error\n")
+		return false
+	}
+
+	areEqual := oldIPAddr.Equal(newIPAddr) && bytes.Equal((*oldIPNet).Mask, (*newIPNet).Mask)
+	fmt.Printf("suppressEquivalentIPDiffs: are equal? %t\n", areEqual)
+	return areEqual
 }

@@ -45,6 +45,31 @@ func TestAccAWSWafRegionalIPSet_basic(t *testing.T) {
 	})
 }
 
+func TestAccAWSWafRegionalIPSet_leadingZeros(t *testing.T) {
+	var v waf.IPSet
+	ipsetName := fmt.Sprintf("ip-set-%s", acctest.RandString(5))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAWSWafRegionalIPSetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAWSWafRegionalIPSetConfig_leadingZeros(ipsetName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAWSWafRegionalIPSetExists("aws_wafregional_ipset.ipset", &v),
+					resource.TestCheckResourceAttr(
+						"aws_wafregional_ipset.ipset", "name", ipsetName),
+					// resource.TestCheckResourceAttr(
+					// 	"aws_wafregional_ipset.ipset", "ip_set_descriptor.4037960608.type", "IPV4"),
+					// resource.TestCheckResourceAttr(
+					// 	"aws_wafregional_ipset.ipset", "ip_set_descriptor.4037960608.value", "192.0.7.0/24"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccAWSWafRegionalIPSet_disappears(t *testing.T) {
 	var v waf.IPSet
 	ipsetName := fmt.Sprintf("ip-set-%s", acctest.RandString(5))
@@ -422,6 +447,21 @@ resource "aws_wafregional_ipset" "ipset" {
   ip_set_descriptor {
     type = "IPV4"
     value = "192.0.7.0/24"
+  }
+}`, name)
+}
+
+func testAccAWSWafRegionalIPSetConfig_leadingZeros(name string) string {
+	return fmt.Sprintf(`
+resource "aws_wafregional_ipset" "ipset" {
+  name = "%s"
+  ip_set_descriptor {
+    type = "IPV4"
+    value = "192.0.07.0/24"
+  }
+  ip_set_descriptor {
+	type  = "IPV6"
+	value = "1100:345:1130:0345::/64"
   }
 }`, name)
 }

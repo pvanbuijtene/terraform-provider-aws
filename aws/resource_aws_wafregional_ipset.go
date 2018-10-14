@@ -1,8 +1,10 @@
 package aws
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"net"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
@@ -18,6 +20,29 @@ func resourceAwsWafRegionalIPSet() *schema.Resource {
 		Read:   resourceAwsWafRegionalIPSetRead,
 		Update: resourceAwsWafRegionalIPSetUpdate,
 		Delete: resourceAwsWafRegionalIPSetDelete,
+
+		// CustomizeDiff: customdiff.Sequence(
+		// 	func(diff *schema.ResourceDiff, v interface{}) error {
+		// 		log.Printf("ResourceDiff")
+		// 		if diff.Id() != "" && diff.HasChange("ip_set_descriptor") {
+
+		// 			// o, n := diff.GetChange("server_side_encryption")
+		// 			// if isDynamoDbTableOptionDisabled(o) && isDynamoDbTableOptionDisabled(n) {
+		// 			// 	return diff.Clear("server_side_encryption")
+		// 			// }
+
+		// 			o, n := diff.GetChange("ip_set_descriptor")
+
+		// 			prefixes := diff.GetChangedKeysPrefix("ip_set_descriptor")
+		// 			log.Printf("Prefix length %d %s %s %s", len(prefixes), prefixes[0], o, n)
+
+		// 			// diff.Clear("ip_set_descriptor.4037960608.type")
+		// 			return diff.Clear("ip_set_descriptor.3081131937")
+		// 			//return diff.Clear("ip_set_descriptor.3081131937")
+		// 		}
+		// 		return nil
+		// 	},
+		//),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -41,8 +66,35 @@ func resourceAwsWafRegionalIPSet() *schema.Resource {
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
+							// DiffSuppressFunc: suppressEquivalentIPDiffs,
+							// StateFunc: func(v interface{}) string {
+
+							// 	// if v == nil || v.(string) == "" {
+							// 	// 	return ""
+							// 	// }
+
+							// 	// s := v.(string)
+
+							// 	_, net, _ := net.ParseCIDR("127.0.0.1/32")
+							// 	return net.String()
+							// },
 						},
 					},
+				},
+				Set: func(v interface{}) int {
+					var buf bytes.Buffer
+					m := v.(map[string]interface{})
+					_, net, _ := net.ParseCIDR(m["value"].(string))
+					m["value"] = net.String()
+					// buf.WriteString(fmt.Sprintf("%s-", m["type"].(string)))
+					// buf.WriteString(fmt.Sprintf("%s-", net.String()))
+					// log.Println(fmt.Sprintf("SET: %s > %s", m["value"].(string), net.String()))
+					// return hashcode.String(buf.String())
+
+					//var buf bytes.Buffer
+					//SerializeResourceForHash(&buf, m, resource)
+					//return hashcode.String(buf.String())
+					return HashSchema(m)
 				},
 			},
 		},
@@ -87,6 +139,7 @@ func resourceAwsWafRegionalIPSetRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	log.Printf("READING ip_set_descriptor")
 	d.Set("ip_set_descriptor", flattenWafIpSetDescriptorWR(resp.IPSet.IPSetDescriptors))
 	d.Set("name", resp.IPSet.Name)
 
