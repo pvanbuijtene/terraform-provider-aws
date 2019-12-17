@@ -7,7 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/wafv2"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+  "github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // func init() {
@@ -111,7 +112,7 @@ import (
 // }
 
 func TestAccAWSWafv2WebAcl_basic(t *testing.T) {
-	var webACL waf.WebACL
+	var webACL wafv2.WebACL
 	rName := fmt.Sprintf("wafv2webacl%s", acctest.RandString(5))
 	resourceName := "aws_wafv2_web_acl.test"
 
@@ -457,7 +458,7 @@ func testAccCheckAWSWafv2WebAclExists(n string, v *wafv2.WebACL) resource.TestCh
 		}
 
 		conn := testAccProvider.Meta().(*AWSClient).wafv2conn
-		resp, err := conn.GetWebACL(&wafv2.GetWebACLInput{
+		resp, err := conn.GetWebACL(&wafv2.GetGetWebACLInput{
 			WebACLId: aws.String(rs.Primary.ID),
 		})
 
