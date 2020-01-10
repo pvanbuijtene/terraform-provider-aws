@@ -7,8 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/wafv2"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-  "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-  "github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // func init() {
@@ -458,15 +458,17 @@ func testAccCheckAWSWafv2WebAclExists(n string, v *wafv2.WebACL) resource.TestCh
 		}
 
 		conn := testAccProvider.Meta().(*AWSClient).wafv2conn
-		resp, err := conn.GetWebACL(&wafv2.GetGetWebACLInput{
-			WebACLId: aws.String(rs.Primary.ID),
+		var resp, err = conn.GetWebACL(&wafv2.GetWebACLInput{
+			Id:    v.Id,
+			Name:  v.Name,
+			Scope: v.Name,
 		})
 
 		if err != nil {
 			return err
 		}
 
-		if *resp.WebACL.WebACLId == rs.Primary.ID {
+		if *resp.WebACL.Id == rs.Primary.ID {
 			*v = *resp.WebACL
 			return nil
 		}
@@ -478,9 +480,18 @@ func testAccCheckAWSWafv2WebAclExists(n string, v *wafv2.WebACL) resource.TestCh
 func testAccAWSWafv2WebAclConfig_Required(rName string) string {
 	return fmt.Sprintf(`
 resource "aws_wafv2_web_acl" "test" {
+	name = %q
+	scope = "REGIONAL"
+
 	default_action {
-    allow {}
-    block {}
+		allow {}
+		block {}
+	}
+
+	visibility_config {
+		cloudwatch_metrics_enabled = false
+		metric_name = %q
+		sampled_requests_enabled = false
 	}
 }
 `, rName, rName)

@@ -320,7 +320,6 @@ type AWSClient struct {
 	terraformVersion                    string
 	transferconn                        *transfer.Transfer
 	wafconn                             *waf.WAF
-	wafv2conn                           *wafv2.WAFV2
 	wafregionalconn                     *wafregional.WAFRegional
 	wafv2conn                           *wafv2.WAFV2
 	worklinkconn                        *worklink.WorkLink
