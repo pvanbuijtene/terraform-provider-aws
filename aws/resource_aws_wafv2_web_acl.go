@@ -2,12 +2,13 @@ package aws
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/waf"
 	"github.com/aws/aws-sdk-go/service/wafv2"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 )
 
 func resourceAwsWafv2WebAcl() *schema.Resource {
@@ -52,21 +53,25 @@ func resourceAwsWafv2WebAcl() *schema.Resource {
 							Required: true,
 							MaxItems: 1,
 							ForceNew: true, // REMOVE THIS
-							Elem: &schema.Resource{
-								//Schema: map[string]*schema.Schema{
-								//	"cloudwatch_metrics_enabled": {
-								//		Type:     schema.TypeBool,
-								//		Required: true,
-								//	},
-								//	"metric_name": {
-								//		Type:     schema.TypeString,
-								//		Required: true,
-								//	},
-								//	"sampled_requests_enabled": {
-								//		Type:     schema.TypeBool,
-								//		Required: true,
-								//	},
-								//},
+							Elem:     &schema.Resource{
+							//Schema: map[string]*schema.Schema{
+							//	"cloudwatch_metrics_enabled": {
+							//		Type:     schema.TypeBool,
+							//		Required: true,
+							//	},
+							},
+						},
+						"deny": {
+							Type:     schema.TypeSet,
+							Required: true,
+							MaxItems: 1,
+							ForceNew: true, // REMOVE THIS
+							Elem:     &schema.Resource{
+							//Schema: map[string]*schema.Schema{
+							//	"cloudwatch_metrics_enabled": {
+							//		Type:     schema.TypeBool,
+							//		Required: true,
+							//	},
 							},
 						},
 					},
