@@ -53,12 +53,13 @@ func resourceAwsWafv2WebAcl() *schema.Resource {
 							Required: true,
 							MaxItems: 1,
 							ForceNew: true, // REMOVE THIS
-							Elem:     &schema.Resource{
-							//Schema: map[string]*schema.Schema{
-							//	"cloudwatch_metrics_enabled": {
-							//		Type:     schema.TypeBool,
-							//		Required: true,
-							//	},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									//	"cloudwatch_metrics_enabled": {
+									//		Type:     schema.TypeBool,
+									//		Required: true,
+									//	},
+								},
 							},
 						},
 						"deny": {
@@ -66,12 +67,13 @@ func resourceAwsWafv2WebAcl() *schema.Resource {
 							Required: true,
 							MaxItems: 1,
 							ForceNew: true, // REMOVE THIS
-							Elem:     &schema.Resource{
-							//Schema: map[string]*schema.Schema{
-							//	"cloudwatch_metrics_enabled": {
-							//		Type:     schema.TypeBool,
-							//		Required: true,
-							//	},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									//	"cloudwatch_metrics_enabled": {
+									//		Type:     schema.TypeBool,
+									//		Required: true,
+									//	},
+								},
 							},
 						},
 					},
