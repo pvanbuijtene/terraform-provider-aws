@@ -49,31 +49,23 @@ func resourceAwsWafv2WebAcl() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allow": {
-							Type:     schema.TypeSet,
-							Required: true,
-							MaxItems: 1,
-							ForceNew: true, // REMOVE THIS
+							Type:         schema.TypeSet,
+							Required:     false,
+							MaxItems:     1,
+							ForceNew:     true, // REMOVE THIS,
+							ExactlyOneOf: []string{"allow", "deny"},
 							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									//	"cloudwatch_metrics_enabled": {
-									//		Type:     schema.TypeBool,
-									//		Required: true,
-									//	},
-								},
+								Schema: map[string]*schema.Schema{},
 							},
 						},
 						"deny": {
-							Type:     schema.TypeSet,
-							Required: true,
-							MaxItems: 1,
-							ForceNew: true, // REMOVE THIS
+							Type:         schema.TypeSet,
+							Required:     false,
+							MaxItems:     1,
+							ForceNew:     true, // REMOVE THIS
+							ExactlyOneOf: []string{"allow", "deny"},
 							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									//	"cloudwatch_metrics_enabled": {
-									//		Type:     schema.TypeBool,
-									//		Required: true,
-									//	},
-								},
+								Schema: map[string]*schema.Schema{},
 							},
 						},
 					},
